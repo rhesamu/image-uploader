@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <h5>{{ error }}</h5>
+    <label for="">Email</label>
+    <input type="text" id="email" v-model="email"><br>
+    <label for="">Name</label>
+    <input type="text" id="username" v-model="userName"><br>
+    <button v-on:click="getToken">Get Token</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        email: '',
+        userName: '',
+        error: ''
+      },
+      methods: {
+        getToken: function() {
+          axios.post('http://35.240.157.177/request-token', { 
+            email: this.email,
+            name: this.userName
+          }, {})
+          .then(response => {
+            let token = response.data.uuid
+            if (token) {
+              console.log(response)
+              localStorage.setItem('token', token)
+              window.location.href = "http://localhost:8080/images.html"
+            } else {
+              console.log(response)
+              this.error = response.data.error.errorMessage
+            }
+          })
+          .catch(err => {
+            console.log(err)
+            this.error = err
+          }) 
+        }
+      }
+    })
+  </script>
+</body>
+</html>

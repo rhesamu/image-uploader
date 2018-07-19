@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/css/bootstrap.min.css" />
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <div class="row">
+        <label for="">Upload image</label>
+        <input type="file" v-on:change="uploadImage($event)"/>
+        <button v-on:click="submitImage()">Upload</button>
+      </div>
+      <div class="row">
+        <div class="col-sm-3" v-for="image in images">
+          <div class="card">
+            <img v-bind:src="image.url" alt="test-image">
+            <div class="card-body"><small>{{ image.user.name}} </small></div>
+          </div>
+        </div>
+      </div>
+    </div>    
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: "#app",
+      data: {
+        file: '',
+        images: []
+      },
+      created() {
+        axios.get('http://35.240.157.177/image', {
+          headers: {
+            authorization: localStorage.getItem('token')
+          }
+        })
+        .then(response => {
+          console.log(response)
+          response.data.forEach(img => {
+            this.images.push(img)
+          })
+        })
+        .catch(err => {
+          console.log(err)
+          alert('You have to get token first')
+          window.location.href = "http://localhost:8080"
+        })
+      },
+      methods: {
+        uploadImage: function(e) {
+          this.file = e.target.files[0]
+          console.log(e)
+        },
+        submitImage: function() {
+          let formData = new FormData()
+          formData.append('file', this.file)
+
+          axios.post('http://35.240.157.177/image', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              authorization: localStorage.getItem('token')
+            }
+          })
+          .then(response => {
+            console.log('success')
+            console.log(response)
+          })
+          .catch(err => {
+            console.log('error', err)
+          })
+        }
+      }
+    })
+  </script>
+</body>
+</html>
